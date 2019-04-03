@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yasukusury.onlinedocument.biz.mapper.ChapterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.yasukusury.onlinedocument.biz.entity.Chapter">
+    <result column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="delete_time" property="deleteTime" />
+    <result column="valid" property="valid" />
+        <result column="name" property="name" />
+        <result column="pid" property="pid" />
+        <result column="seq" property="seq" />
+        <result column="book" property="book" />
+        <result column="url" property="url" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="org.yasukusury.onlinedocument.biz.dto.ChapterDto">
+        <result column="id" property="id" />
+        <result column="valid" property="valid" />
+        <result column="name" property="name" />
+        <result column="pid" property="pid" />
+        <result column="seq" property="seq" />
+        <result column="url" property="url" />
+    </resultMap>
+
+    <resultMap id="ESoResultMap" type="org.yasukusury.onlinedocument.biz.dto.ChapterESo">
+        <result column="book_id" property="bookId" />
+        <result column="chapter_id" property="chapterId" />
+        <result column="book_name" property="bookName" />
+        <result column="chapter_name" property="chapterName" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        delete_time,
+        valid,
+        name, pid, seq, book, url
+    </sql>
+
+    <select id="listESoById" resultMap="ESoResultMap">
+        select c.id chapter_id, c.name chapter_name, b.id book_id, b.name book_name
+        from chapter c join book b on c.book = b.id
+        where c.valid = 1 and
+            c.id in
+        <foreach collection="list" item="c" open="(" close=")" separator=",">
+            #{c}
+        </foreach>
+    </select>
+
+</mapper>

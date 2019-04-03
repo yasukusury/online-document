@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+    <title>我的主页 - Realm</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+@@ include("../top-nav.jsp"){} $$
+<div class="container">
+    <div class="row">
+        <div class="col-md-2">
+            @@ include("left-nav.jsp"){} $$
+        </div>
+        <div class="col-md-10">
+            <form class="layui-form mpanel" action="/user/info" id="infoForm">
+                <div class="layui-form-item info-item">
+                    <img style="width: 200px" src="${user.portrait!'/static/image/emp-portrait.jpg'}">
+                    <button type="button" class="layui-btn" id="porBtn" data-id="${user.id}">设置</button>
+                </div>
+                <div class="layui-form-item info-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        @@ if(self){ $$
+                        <input type="radio" name="gender" value="false" title="男" ${!user.gender ? "checked" : ""}>
+                        <input type="radio" name="gender" value="true" title="女" ${user.gender ? "checked" : ""}>
+                        @@ } else { $$
+                        ${user.gender ? "女" : "男"}
+                        @@ } $$
+                    </div>
+                </div>
+                <div class="layui-form-item info-item">
+                    <label class="layui-form-label">email</label>
+                    <div class="layui-input-block">
+                        @@ if(self){ $$
+                        <input type="email" name="email" required lay-verify="required"
+                               autocomplete="off" class="layui-input" value="${user.email!}">
+                        @@ } else { $$
+                        ${user.email!}
+                        @@ } $$
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text info-item">
+                    <label class="layui-form-label">简介</label>
+                    <div class="layui-input-block">
+                        <textarea type="text" name="introduction" required lay-verify="required" placeholder="请输入简介"
+                                  autocomplete="off" class="layui-textarea" maxlength="140"
+                                  ${self!false ? "" : "readonly"}>${user.introduction!}</textarea>
+
+                    </div>
+                </div>
+                @@ if(self){ $$
+                <div class="layui-form-item">
+                    <div class="h-mid">
+                        <button class="layui-btn" lay-submit >保存</button>
+                    </div>
+                </div>
+                @@ } $$
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+
+@@ include("../top-nav-js.jsp"){} $$
+@@ include("left-nav-js.jsp"){} $$
+<script type="text/javascript">
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(*)', function (data) {
+            var form = $("#infoForm");
+            var formData = form.serialize();
+            $.post(form.attr("action"), formData, function (data) {
+                if (data.success) {
+                    layer.msg(data.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    }, function () {
+                        parent.layer.closeAll();
+                        parent.window.location.reload();
+                    });
+                } else {
+                    layer.msg(data.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    });
+                }
+            });
+            return false; //阻止表单跳转。
+        });
+        $(document).on('click', '#porBtn', function () {
+            layer.open({
+                title: '设置头像',
+                type: 2,
+                area: ['1000px', '450px'],
+                content: '/user/portrait/' + $('#porBtn').attr('data-id')
+            });
+        });
+
+    })
+</script>
+</body>
+</html>

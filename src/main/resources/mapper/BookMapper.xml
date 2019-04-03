@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yasukusury.onlinedocument.biz.mapper.BookMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.yasukusury.onlinedocument.biz.entity.Book">
+        <result column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="delete_time" property="deleteTime" />
+        <result column="valid" property="valid" />
+            <result column="author" property="author" />
+            <result column="name" property="name" />
+            <result column="introduction" property="introduction" />
+            <result column="cover" property="cover" />
+            <result column="chapters" property="chapters" />
+            <result column="tags" property="tags" />
+            <result column="open" property="open" />
+            <result column="visit" property="visit" />
+            <result column="love" property="love" />
+            <result column="praise" property="praise" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="org.yasukusury.onlinedocument.biz.dto.BookDto">
+        <result column="id" property="id" />
+        <result column="valid" property="valid" />
+        <result column="author" property="author" />
+        <result column="author_id" property="authorId" />
+        <result column="name" property="name" />
+        <result column="introduction" property="introduction" />
+        <result column="cover" property="cover" />
+        <result column="tags" property="tags" />
+        <result column="open" property="open" />
+        <result column="visit" property="visit" />
+        <result column="love" property="love" />
+        <result column="praise" property="praise" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        delete_time,
+        valid,
+        author, name, introduction, cover, chapters, tags, `open`, visit, love, praise
+    </sql>
+
+    <sql id="Dto_Select_From_Join">
+        select b.id, u.username author, b.author author_id, b.name, b.introduction, b.cover, b.tags, b.open, b.visit, b.love, b.praise
+        from book b join user u on b.author = u.id
+
+    </sql>
+
+    <select id="listDtoByAuthor" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.author = #{author} and b.valid = 1
+        <if test="open == true">
+            and b.`open` = 1
+        </if>
+    </select>
+
+    <select id="getDtoById" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.id = id and b.valid = 1
+        <if test="open == true">
+            and b.`open` = 1
+        </if>
+    </select>
+
+    <select id="listDtoById" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.id in
+        <foreach collection="list" separator="," open="(" close=")" item="i">
+            #{i}
+        </foreach>
+            and b.valid = 1
+        <if test="open == true">
+            and b.`open` = 1
+        </if>
+    </select>
+
+    <select id="descDtoByPraise" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.valid = 1 and b.`open` = 1
+        order by b.praise desc limit 8
+    </select>
+
+    <select id="descDtoByLove" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.valid = 1 and b.`open` = 1
+        order by b.love desc limit 8
+    </select>
+
+    <select id="descDtoById" resultMap="DtoResultMap">
+        <include refid="Dto_Select_From_Join"/>
+        where b.valid = 1 and b.`open` = 1
+        order by b.id desc limit 8
+    </select>
+
+
+    <!--<select id="listBookByAuthorLimited" resultMap="BaseResultMap">-->
+        <!--SELECT-->
+            <!--<include refid="Base_Column_List"/>-->
+        <!--FROM book-->
+        <!--WHERE author = #{aid}-->
+        <!--<if test="his != null">-->
+            <!--AND #{his} > id-->
+        <!--</if>-->
+        <!--ORDER BY id DESC-->
+        <!--LIMIT #{size}-->
+    <!--</select>-->
+
+</mapper>

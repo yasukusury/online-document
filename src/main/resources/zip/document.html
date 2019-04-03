@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="full-height">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - </title>
+
+    <!-- Bootstrap -->
+    <link href="static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="static/layui/css/layui.css" rel="stylesheet">
+    <link href="static/editormd/editormd.min.css" rel="stylesheet">
+    <link href="static/zTree/zTreeStyle.css" rel="stylesheet">
+    <link href="static/zTree/outlook.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="full-height">
+<div class="panel panel-default full-height" style="margin: 0">
+    <div class="panel-body full-height">
+        <div class="left-nav" id="naviBar">
+            <div id="logoBar" class="navbar-header">
+                <div id="book-mini">
+                    <img class="book-cover" src="">
+                    <span style="margin-left: 15px"></span>
+                    <div>
+                        <div id="book-name"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chapterPanel" class="doc-nav full-height">
+                <div id="docTree" class="doc-section ztree full-height">
+
+                </div>
+            </div>
+        </div>
+        <div class="doc-main full-height">
+            <div class="doc-title">
+                <!--<div class="left-tool">-->
+                <!--<a><i class="tool layui-icon layui-icon-shrink-right"></i> </a>-->
+                <!--</div>-->
+                <h1 id="titleName">...</h1>
+            </div>
+            <h1></h1>
+            <iframe id="doc-cont" class="doc-cont markdown-body">
+            </iframe>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="static/bootstrap/js/bootstrap.min.js"></script>
+<script src="static/layui/layui.all.js"></script>
+<script src="static/zTree/jquery.ztree.all.js"></script>
+<script src="static/js/myJs.js"></script>
+<script type="text/javascript" src="json.js"></script>
+<script type="text/javascript" src="init.js"></script>
+<script type="text/javascript">
+
+    function getText(id) {
+        $('#titleName').html(chapterDataMap[id].name);
+        var doc = $('#doc-cont');
+        doc.attr('src', 'html/' + id + '.html');
+        doc.scrollTop(0);
+    }
+
+
+    function treeLoaded(){}
+
+
+</script>
+<script src="left-nav-js.js" type="text/javascript"></script>
+
+</body>
+</html>

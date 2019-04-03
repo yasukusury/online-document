@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yasukusury.onlinedocument.biz.mapper.BookmarkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.yasukusury.onlinedocument.biz.entity.Bookmark">
+    <result column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="delete_time" property="deleteTime" />
+    <result column="valid" property="valid" />
+        <result column="user" property="user" />
+        <result column="book" property="book" />
+        <result column="chapter" property="chapter" />
+        <result column="progress" property="progress" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="org.yasukusury.onlinedocument.biz.dto.BookmarkDto">
+        <result column="book" property="book" />
+        <result column="chapter" property="chapter" />
+        <result column="book_id" property="bookId" />
+        <result column="chapter_id" property="chapterId" />
+        <result column="progress" property="url" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        valid,
+        create_time,
+        update_time,
+        delete_time,
+        `user`, book, chapter, progress
+    </sql>
+
+    <select id="listDtoByUser" resultMap="DtoResultMap">
+        select b.name book, c.name chapter, b.id book_id, c.id chapter_id, m.progress
+        from bookmark m
+            join book b on m.book = b.id and m.valid = b.valid
+            join chapter c on m.chapter = c.id and m.valid = c.valid
+        where m.user = #{user} and m.valid = 1;
+
+    </select>
+
+    <select id="getDtoByUserAndBook" resultMap="DtoResultMap">
+        select b.name book, c.name chapter, b.id book_id, c.id chapter_id, m.progress
+        from bookmark m
+            join book b on m.book = b.id and m.valid = b.valid
+            join chapter c on m.chapter = c.id and m.valid = c.valid
+        where m.user = #{user} and m.book = b.id and m.valid = 1;
+
+    </select>
+</mapper>

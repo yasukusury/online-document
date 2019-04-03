@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="full-height">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - ${book.name}</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link href="/static/editormd/editormd.min.css" rel="stylesheet">
+    <link href="/static/zTree/zTreeStyle.css" rel="stylesheet">
+    <link href="/static/zTree/outlook.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="full-height">
+<div class="panel panel-default full-height" style="margin: 0">
+    <div class="panel-body full-height">
+        @@ include("left-nav.jsp"){} $$
+        <div class="doc-main full-height">
+            <form id="mdForm" action="/book/document/b${book.id}" class="fix full-height">
+                <div class="editormd" id="editor">
+                    <textarea class="editormd-markdown-textarea" name="md"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script src="/static/editormd/editormd.min.js"></script>
+<script src="/static/zTree/jquery.ztree.all.js"></script>
+<script src="/static/js/myJs.js"></script>
+<script type="text/javascript">
+    var layer;
+    var editor;
+    var locked = false;
+    var edited = false;
+
+    function getText(id) {
+        if (id === curId)
+            return;
+        $.get('/chapter/text/b${book.id}/c' + id, {}, function (data) {
+            if (data.success) {
+                if (edited) {
+                    if (!layer.confirm('你确定要放弃对文档的修改？')) {
+                        return;
+                    }
+                }
+                curId = id;
+                loading = true;
+                editor.setMarkdown(data.data);
+                editor.codeEditor.clearHistory();
+                // editor.config(imageUploadURL)
+                lockEditor(false);
+            } else {
+                lockEditor(true);
+            }
+        });
+        // $.ajax('/chapter/text/b${book.id}/c' + id, {
+        //     error: function (a,b,c) {
+        //         console.log(a)
+        //     }
+        //     ,success: function (data) {
+        //     if (data.success) {
+        //         if (edited) {
+        //             if (!layer.confirm('你确定要放弃对文档的修改？')) {
+        //                 return;
+        //             }
+        //         }
+        //         loading = true;
+        //         editor.setMarkdown(data.data);
+        //         editor.codeEditor.clearHistory();
+        //         lockEditor(false);
+        //     } else {
+        //         lockEditor(true);
+        //     }
+        // }});
+    }
+    function saveDoc() {
+        hasText(curId, $('textarea[name=md]').val(), $('textarea[name=editor-html-code]').val())
+    }
+
+    layui.use(['form', 'layer'], function () {
+        layer = layui.layer;
+
+        editor = editormd('editor', {
+            placeholder: '尽情编辑',
+            path: '/static/editormd/lib/',
+            mode: 'markdown',
+            saveHTMLToTextarea: true,
+            theme        : (localStorage.theme) ? localStorage.theme : "default",
+
+            previewTheme : (localStorage.previewTheme) ? localStorage.previewTheme : "default",
+
+            editorTheme  : (localStorage.editorTheme) ? localStorage.editorTheme : "default",
+
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "png", "bmp"],
+            imageUploadURL: "/upload/image/chapter/${book.id}",
+
+            toolbarIcons: function () {
+                return ['save', 'editorTheme', '|',
+                    "undo", "redo", "|",
+                    "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                    "list-ul", "list-ol", "hr", "|",
+                    "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+                    "goto-line", "watch", "preview", "fullscreen", "clear", "search", "|",
+                    "help", "info"
+                ];
+            },
+            toolbarCustomIcons: {
+                save: '<a href="javascript:;" title="保存文档"><i id="save" name="save" class="layui-icon layui-icon-upload icon fa"></i></a>',
+                editorTheme: '<a href="javascript:;" title="编辑器样式"><i id="editorTheme" name="editorTheme" class="layui-icon layui-icon-theme icon fa"></i></a>'
+            },
+            toolbarHandlers: {
+                save: saveDoc,
+                editorTheme: function() {
+                    this.executePlugin("styleDialog", "style-dialog/style-dialog");
+                }
+            }
+        });
+
+        editor.on('change', function () {
+           if (loading) {
+               loading = false;
+               edited = false;
+           } else {
+               edited = true;
+           }
+        });
+        editor.on('load', function () {
+            lockEditor(true);
+            var table = jsonUrlParams();
+            if (table.nav){
+                var tid = table['nav'];
+                myZTree.selectNode(myZTree.getNodeByParam('id', tid));
+                curId = tid;
+                getText(tid);
+            }
+        });
+
+    });
+    function treeLoaded() {
+
+    }
+</script>
+@@ include("left-nav-js.jsp"){} $$
+</body>
+</html>

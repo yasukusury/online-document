@@ -1,0 +1,110 @@
+server:
+  port: 8624
+
+#spring
+spring:
+  # 数据源设置
+  datasource:
+    url: jdbc:mysql://localhost:3306/online_document?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #使用自带hikariCP作为连接池
+    hikari.maximum-pool-size: 100
+    hikari.minimum-idle: 10
+
+  #开启彩色控制台显示
+  output.ansi.enabled: ALWAYS
+  thymeleaf:
+    enabled: false
+    #cache: false
+    #mode: HTML5
+
+  #上传设置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  #json序列化反序列化工具设置
+  jackson:
+
+    #日期格式化
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+       #格式化输出
+      indent_output: true
+      #忽略无法转换的对象
+      fail_on_empty_beans: false
+    #设置空如何序列化
+    defaultPropertyInclusion: NON_EMPTY
+    deserialization:
+      #允许对象忽略json中不存在的属性
+      fail_on_unknown_properties: false
+    parser:
+      #允许出现特殊字符和转义符
+      allow_unquoted_control_chars: true
+      #允许出现单引号
+      allow_single_quotes: true
+
+  #spring data
+  data:
+    #Elasticsearch设置
+    elasticsearch:
+      cluster-nodes: localhost:9300
+      repositories:
+        enabled: true
+
+#日志设置
+logging:
+  file: log/odc.log
+  level:
+    org:
+      springfromework.web: info
+      mybatis: error
+      yasukusury: debug
+
+#beetl模板设置
+beetl:
+  suffix: jsp
+  configResources: /config/beetl.properties
+  templatesPath: /templates
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: org.yasukusury.onlinedocument.biz.entity
+  global-config:
+    #数据库大写下划线转换
+    #capital-mode: true
+    db-config:
+      db-type: mysql
+      #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+      id-type: auto
+      #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+      field-strategy: not_null
+      #逻辑删除配置（下面3个配置）
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+    #自定义SQL注入器
+    #sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+    #自定义填充策略接口实现
+    #meta-object-handler: com.baomidou.springboot.xxx
+  configuration:
+    map-underscore-to-camel-case: true
+#    cache-enabled: true
+#    lazy-loading-enabled: true
+#    aggressive-lazy-loading: false
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+
+#文档生成工具
+swagger:
+  enabled: true
+  title: online-document-API
+  version: @project.version@
+  description: 在线文档创作API文档
+  base-package:  org.yasukusury.onlinedocument.biz.controller
+  base-path: /**
+  exclude-path: /error
+

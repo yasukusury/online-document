@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="full-height">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - ${book.name}</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link href="/static/editormd/editormd.min.css" rel="stylesheet">
+    <link href="/static/zTree/zTreeStyle.css" rel="stylesheet">
+    <link href="/static/zTree/outlook.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="full-height">
+<div class="panel panel-default full-height" style="margin: 0">
+    <div class="panel-body full-height">
+        @@ include("left-nav.jsp"){} $$
+        <div class="doc-main full-height">
+            <div class="doc-title">
+                <!--<div class="left-tool">-->
+                <!--<a><i class="tool layui-icon layui-icon-shrink-right"></i> </a>-->
+                <!--</div>-->
+                <h1 id="titleName">...</h1>
+            </div>
+            <h1></h1>
+            <div id="doc-cont" class="doc-cont markdown-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script src="/static/zTree/jquery.ztree.all.js"></script>
+<script src="/static/js/myJs.js"></script>
+<script type="text/javascript">
+    var layer;
+    var editor;
+    var locked = false;
+    var edited = false;
+
+    var emptyHtml1 = "<H1></H1>";
+    var emptyHtml2 = "<H1>空白</H1>";
+
+    function getText(id, offset) {
+        if (id === curId && offset !== undefined) {
+            var d = document.querySelector('#doc-cont');
+            d.scrollTop = d.scrollHeight * offset / 100;
+        }
+        $.get('/chapter/read/b${book.id}/c' + id, {}, function (data) {
+            $('#titleName').html(chapterDataMap[id].name);
+            if (data.success) {
+                curId = id;
+                var doc = $('#doc-cont');
+                doc.html(data.data);
+                doc.scrollTop(0);
+                if (offset) {
+                    var d = document.querySelector('#doc-cont');
+                    d.scrollTop = d.scrollHeight * offset / 100;
+                }
+            } else {
+                $('#doc-cont').html(emptyHtml2);
+            }
+        });
+        // $.ajax('/commentPraise/read/b${book.id}/c' + id, {
+        //     data: null,
+        //     error : function(a,b,c){
+        //         console.log(a)
+        //     },
+        //     success: function (data) {
+        //         if (data.success) {
+        //             $('#doc-cont').html(data.data);
+        //         }
+        //     }
+        // });
+    }
+
+    layui.use(['form', 'layer'], function () {
+        layer = layui.layer;
+
+    });
+
+    function treeLoaded() {
+        var table = jsonUrlParams();
+        var tid;
+        if (table.nav) {
+            var tid = table['nav'];
+            curId = tid;
+            myZTree.selectNode(myZTree.getNodeByParam('id', tid));
+            if (table.progress) {
+                getText(tid, table.progress);
+            } else {
+                getText(tid);
+            }
+        }
+    }
+
+</script>
+@@ include("left-nav-js.jsp"){} $$
+@@ include("left-com-js.jsp"){} $$
+</body>
+</html>

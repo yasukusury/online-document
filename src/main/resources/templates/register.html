@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - 注册</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link href="/static/css/myCss.css" rel="stylesheet">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="container">
+            <div class="h-mid">
+                <b class="btn" style="font-size: 50px; color: blue">Realm</b>
+            </div>
+            <form class="layui-form" action="/register" method="post" id="regForm">
+                <div class="layui-form-item flex-form">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="grow">
+                        <input type="text" name="username" required lay-verify="required|username" placeholder="请输入用户名"
+                               autocomplete="off" class="layui-input" id="username">
+                    </div>
+                    <div class="right hide">
+                        <span data-toggle="tooltip" title="用户名已存在" style="color: red" id="nameTip">
+                            <i class="layui-icon layui-icon-close-fill"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="layui-form-item flex-form">
+                    <label class="layui-form-label">密码</label>
+                    <div class="grow">
+                        <input type="password" name="password" required lay-verify="required|password" placeholder="请输入密码"
+                               autocomplete="off" class="layui-input" id="password">
+                    </div>
+                    <div class="right hide">
+                        <span data-toggle="tooltip" title="用户名已存在" style="color: red" class="tip">
+                            <i class="layui-icon layui-icon-close-fill"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="layui-form-item flex-form">
+                    <label class="layui-form-label">再次确认密码</label>
+                    <div class="grow">
+                        <input type="password" name="rea_pass" required lay-verify="required|rea_pass"
+                               placeholder="请再次输入密码"
+                               autocomplete="off" class="layui-input" id="rea_pass">
+                    </div>
+                    <div class="right hide">
+                        <span data-toggle="tooltip" title="用户名已存在" style="color: red" class="tip">
+                            <i class="layui-icon layui-icon-close-fill"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="h-mid">
+                        <button class="layui-btn" lay-submit lay-filter="reg" id="regSubmit">注册</button>
+                        <button type="button" class="layui-btn layui-btn-primary btn-fr">去登录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script type="text/javascript">
+    var layer;
+    var nameValid = false;
+    var pass1, pass2;
+    var verifyFunc = {
+        username: function (value, item) { //value：表单的值、item：表单的DOM对象
+            if (value.length > 30 || value.length < 3) {
+                return '用户名长度限定在3~30以内';
+            }
+            if (!/^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$/.test(value)) {
+                return '用户名不能有特殊字符';
+            }
+            if (/(^_)|(__)|(_+$)/.test(value)) {
+                return '用户名首尾不能出现下划线\'_\'';
+            }
+            if (/^\d+\d+\d$/.test(value)) {
+                return '用户名不能全为数字';
+            }
+            if (!nameValid) {
+                return '用户名不可用';
+            }
+        }
+        //我们既支持上述函数式的方式，也支持下述数组的形式
+        //数组的两个值分别代表：[正则匹配、匹配不符时的提示文字]
+        , password: function (value, item) {
+            pass1 = value;
+            if (!/^[\S]{6,20}$/.test(value)) {
+                return '密码必须6到20位，且不能出现空格';
+            }
+        }
+        , rea_pass: function (value, item) {
+            pass2 = value;
+            if (pass1 != pass2) {
+                return '两次输入的密码不同';
+            }
+        }
+    };
+    layui.use(['form', 'layer'], function () {
+        layer = layui.layer;
+        var form = layui.form;
+        //监听提交
+        form.verify(verifyFunc);
+        form.on('submit()', function (data) {
+            var form = $("#regForm");
+            var formData = form.serialize();
+            $.post(form.attr("action"), formData, function (data) {
+                if (data.success) {
+                    layer.msg(data.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    }, function () {
+                        parent.layer.closeAll();
+                        parent.window.location.reload();
+                    });
+                } else {
+                    layer.msg(data.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    });
+                }
+            });
+            return false; //阻止表单跳转。
+        });
+        $('input[name=\'username\']').focus();
+    });
+
+    $(document).on("click", ".btn-fr", function (e) {
+        parent.layer.closeAll();
+        parent.layer.open({
+            title: '登录',
+            type: 2,
+            area: ['500px', '350px'],
+            content: '/login'
+        });
+    });
+
+    $(document).on("blur", "#regForm input", function (e) {
+        if(e.currentTarget.id == 'username')
+            checkName();
+        var val = e.currentTarget.value;
+        var res = verifyFunc[e.currentTarget.name](val, null);
+        var div = $('#' + e.currentTarget.id).parent().next();
+        if(res){
+            div.children().attr('data-original-title', res);
+            div.removeClass('hide');
+        }else {
+            div.addClass('hide');
+        }
+    });
+
+    function checkName() {
+        var name = $('#username').val();
+        var btn = $('#regSubmit');
+        btn.attr('disable', 'true');
+        $.get('/user/checkName', {'name': name}, function (data) {
+            if (data.success) {
+                var tip = $('#nameTip');
+                nameValid = !data.data;
+                if (nameValid) {
+                    tip.css('visibility', 'hidden');
+                } else {
+                    tip.css('visibility', 'visible');
+                }
+            } else {
+                nameValid = false;
+            }
+        });
+        btn.attr('disable', 'false');
+    }
+
+    $(document).ready(function () {
+        $("[data-toggle='tooltip']").tooltip();
+    })
+</script>
+</body>
+</html>

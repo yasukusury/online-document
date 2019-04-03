@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+    <title>我的书籍 - Realm</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="header-box">
+    @@ include("../top-nav.jsp"){} $$
+</div>
+<div class="container ">
+    <div class="row">
+        <div class="col-md-2">
+            @@ include("left-nav.jsp"){} $$
+        </div>
+        <div class="col-md-10">
+            <div class="mpanel">
+                <div id="bookList" class="bookList">
+                    <div id="emp-tip">
+                        <h1>收藏书单空空如也</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+@@ include("../top-nav-js.jsp"){} $$
+@@ include("left-nav-js.jsp"){} $$
+<script type="text/javascript">
+    var his;
+
+    function createBook(book) {
+        var template = '\n' +
+            '                    <div class="book " data-id="' + book.id + '">\n' +
+            '                        <a href="/book/document/b' + book.id + '" class="book-link book-cover" target="_blank">\n' +
+            '                            <img src="' + book.cover + '" class="book-cover">\n' +
+            '                        </a>\n' +
+            '                        <div>\n' +
+            '                            <a href="/book/document/b' + book.id + '" class="book-link" target="_blank"><span class="book-name">' + book.name + '</span></a>\n' +
+            '                            <div>\n';
+        var tags = book.tags.split(',');
+        if (tags[0]) {
+            template += '<div class="btn btn-default book-tag"><a href="/search/?keyword=' + tags[0] + '">' + tags[0] + '</a></div>';
+            if (tags[1]) {
+                template += '<div class="btn btn-default book-tag"><a href="/search/?keyword=' + tags[1] + '">' + tags[1] + '</a></div>';
+                if (tags[2]) {
+                    template += '<div class="btn btn-default book-tag"><a href="/search/?keyword=' + tags[2] + '">' + tags[2] + '</a></div>';
+                }
+            }
+        }
+        template +=
+            '                            </div>\n' +
+            '                            <div class="book-intro">' + book.introduction + '</div>\n' +
+            '                            <div class="book-author"><span style="margin-right: 10px">By</span>' + book.author + '</div>\n';
+            @@ if (self) { $$
+        template +=
+            '                            <div class="btn-group" role="group" aria-label="...">\n' +
+            '                                <button type="button" class="btn btn-danger delete" href="/book/love/b' + book.id + '">删除</button>\n' +
+            '                            </div>\n';
+            @@ } $$
+        template +=
+            '                        </div>\n' +
+            '                    </div>';
+        return template;
+    }
+
+    function createBookList(bookList) {
+        var content = '';
+        for (var i in bookList) {
+            var book = bookList[i];
+            content += createBook(book);
+        }
+        return content;
+    }
+
+    function listBooks() {
+        var url = '/book/list/${user.id}';
+        if (his){
+            url += '?his=' + his;
+        }
+        $.get(url, function (data) {
+            if (data.success && data.data.length > 0) {
+                var tip = $('#emp-tip');
+                if (tip) tip.remove();
+                his = data.data[data.data.length - 1].id;
+                $('#bookList').append(createBookList(data.data))
+            }
+        })
+    }
+
+    $(document).ready(function () {
+        $(document).on('click', '.delete', function (e) {
+            var id = e.currentTarget.href.split('e/b')[1];
+            layer.confirm('确定取消收藏该书籍吗？', {
+                icon: 3,
+                btn: ['确定', '取消'] //按钮
+            }, function () { //确定
+                $.post(e.currentTarget.href, {good: false}, function (data) {
+                    if (data.success) {
+                        $('.book[data-id=' + id + ']').remove();
+                        layer.msg(data.msg, {
+                            icon: 1,
+                            skin: 'layer-ext-moon',
+                            time: 2000
+                        });
+                    } else {
+                        layer.msg(data.msg, {
+                            icon: 2,
+                            skin: 'layer-ext-moon',
+                            time: 2000
+                        });
+                    }
+                });
+            });
+        });
+        listBooks();
+    });
+</script>
+</body>
+</html>

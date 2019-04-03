@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yasukusury.onlinedocument.biz.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.yasukusury.onlinedocument.biz.entity.User">
+    <result column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="delete_time" property="deleteTime" />
+    <result column="valid" property="valid" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="gender" property="gender" />
+        <result column="portrait" property="portrait" />
+        <result column="email" property="email" />
+        <result column="introduction" property="introduction" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        valid,
+        create_time,
+        update_time,
+        delete_time,
+        username, `password`, gender, portrait, email, introduction
+    </sql>
+    
+    <select id="mapIdByIdSet" resultType="java.util.Map">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id IN
+            <foreach collection="ids" open="(" close=")" separator=", " item="id">
+                #{id}
+            </foreach>
+    </select>
+
+
+</mapper>

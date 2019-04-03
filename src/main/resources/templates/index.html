@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+    <title>广场 - Realm</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+@@ include("top-nav.jsp"){} $$
+<div class="container">
+    <div class="row">
+        <div class="col-md-9 pane">
+            <div class="panel panel-default">
+                <div class="panel-heading">精彩推荐</div>
+                <div class="panel-body">
+                    <div class="layui-tab layui-tab-brief">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">多赞推荐</li>
+                            <li>多收藏推荐</li>
+                            <li>最新书籍</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div id="praise" class="layui-tab-item layui-show"></div>
+                            <div id="love" class="layui-tab-item"></div>
+                            <div id="newest" class="layui-tab-item"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-3 pane">
+            <div class="panel panel-default">
+                <div class="panel-heading">总人气标签</div>
+                <div class="panel-body" id="maxTagPanel">
+                </div>
+                <div class="panel-heading">周人气标签</div>
+                <div class="panel-body" id="hotTagPanel">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    @@ include("top-nav-js.jsp"){} $$
+    @@ include("tag-js.jsp"){} $$
+    <script src="/static/js/myJs.js" type="text/javascript"></script>
+    <script>
+        var table = jsonUrlParams();
+        if (table.goLogin) {
+            parent.layer.closeAll();
+            parent.window.location = table.goLogin;
+        }
+        var recommend = ${json(recommendBooks)};
+        layui.use('element', function () {
+            if (recommend) {
+                if (recommend.praise) {
+                    $('#praise').append(createBookList(recommend.praise).join(' '));
+                }
+                if (recommend.love) {
+                    $('#love').append(createBookList(recommend.love).join(' '));
+                }
+                if (recommend.newest) {
+                    $('#newest').append(createBookList(recommend.newest).join(' '));
+                }
+            }
+
+        });
+
+    </script>
+</body>
+</html>

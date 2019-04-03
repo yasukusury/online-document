@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - 属性</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link href="/static/dropzone/min/dropzone.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="container">
+            <form class="layui-form" action="/book/book" method="post" id="bookForm">
+                <input type="hidden" name="id" value="${book.id}">
+                @@ if(book.id!=null && book.id > 0){ $$
+                <div class="layui-form-item">
+                    <label class="layui-form-label">封面</label>
+                    <div class="layui-input-block" style="display: flex; align-items: center">
+                        <img class="book-cover" id="bookCover" src="${book.cover! '/static/image/emp-book.png'}">
+                        <input name="cover" type="hidden" value="${book.cover}">
+                        <img id="uploadDrop" src="/static/image/add.png" class="dropzone-box">
+                        <!--<div  class="dropzone-box" >-->
+                        <!--</div>-->
+                        <img class="mhide" src="" style="max-height: 300px; max-width: 300px">
+                    </div>
+                </div>
+                @@ } if(self){ $$
+                <input name="author" value="${author.id}" hidden>
+                @@ } else { $$
+                <div class="layui-form-item">
+                    <label class="layui-form-label">作者</label>
+                    <div class="layui-input-block">
+                        ${author.username!}
+                    </div>
+                </div>
+                @@ } $$
+                <div class="layui-form-item">
+                    <label class="layui-form-label">书名</label>
+                    <div class="layui-input-block">
+                        @@ if(self){ $$
+                        <input type="text" name="name" required lay-verify="required" placeholder="请输入书名"
+                               autocomplete="off" class="layui-input" value="${book.name!}">
+                        @@ } else { $$
+                        ${book.name!}
+                        @@ } $$
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标签</label>
+                    <div class="layui-input-block">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input class="layui-input" type="text" id="tag1" name="tag1" placeholder="标签1"
+                                       ${(self!)? "" : "readonly"}>
+                            </div>
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input class="layui-input" type="text" id="tag2" name="tag2" placeholder="标签2"
+                                       ${(self!)? "" : "readonly"}>
+                            </div>
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input class="layui-input" type="text" id="tag3" name="tag3" placeholder="标签3"
+                                       ${(self!)? "" : "readonly"}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">简介</label>
+                    <div class="layui-input-block">
+                        <textarea type="text" name="introduction" required lay-verify="required" placeholder="请输入简介"
+                                  autocomplete="off" class="layui-textarea" maxlength="140"
+                                  ${self!false ? "" : "readonly"}>${book.introduction!}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    @@ if(self){ $$
+                    <label class="layui-form-label"> </label>
+                    <div class="layui-input-block">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <input type="radio" name="open" title="公开" value="true" ${book.open? "checked" : ""} >
+                                <input type="radio" name="open" title="私密" value="false" ${book.open? "" : "checked"}>
+                            </div>
+                        </div>
+                    </div>
+                    @@ } $$
+                </div>
+                <div class="layui-form-item">
+                    <div class="h-mid">
+                        <button class="layui-btn" lay-submit>确定</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script src="/static/dropzone/min/dropzone.min.js"></script>
+<script src="/static/js/myJs.js"></script>
+<script type="text/javascript">
+    var layer;
+    var book = ${json(book)};
+    var tagList = book.tags.split(',');
+    if (tagList[0]) {
+        $('#tag1').val(tagList[0]);
+        if (tagList[1]) {
+            $('#tag2').val(tagList[1]);
+            if (tagList[2]) {
+                $('#tag3').val(tagList[2]);
+            }
+        }
+    }
+    var verifyFunc = {
+        name: function (value, item) {
+            if (value.length > 30 || value.length < 3) {
+                return '用户名长度限定在3~30以内';
+            }
+            if (!/^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$/.test(value)) {
+                return '用户名不能有特殊字符';
+            }
+            if (/(^_)|(__)|(_+$)/.test(value)) {
+                return '用户名首尾不能出现下划线\'_\'';
+            }
+            if(/[\/\\:*?\"<>→]/g.test(value)){
+                return '不能出现以下字符: \\ / : * ? " < > →';
+            }
+            if (/^\d+\d+\d$/.test(value)) {
+                return '用户名不能全为数字';
+            }
+            if (!nameValid) {
+                return '用户名不可用';
+            }
+        }
+
+    };
+    layui.use(['form', 'layer'], function () {
+        layer = layui.layer;
+        var form = layui.form;
+        form.verify(verifyFunc);
+        form.on('submit()', function (data) {
+            var form = $("#bookForm");
+            var formData = jsonUrlParams(form.serialize());
+            formData.tag1 = formData.tag1.replace(',', '');
+            formData.tag2 = formData.tag2.replace(',', '');
+            formData.tag3 = formData.tag3.replace(',', '');
+            var tagList = [formData.tag1, formData.tag2, formData.tag3];
+            delete formData.tag1;
+            delete formData.tag2;
+            delete formData.tag3;
+            if (tagList[2] === '') tagList.splice(2,1);
+            if (tagList[1] === '') tagList.splice(1,1);
+            if (tagList[0] === '') tagList.splice(0,1);
+            formData.tags = tagList.join(',');
+            $.post(form.attr("action"), formData, function (data) {
+                if (data.success) {
+                    layer.msg(data.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        time: 2000
+                    }, function () {
+                        parent.layer.closeAll();
+                        parent.window.location.reload();
+                    });
+                } else {
+                    layer.msg(data.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        time: 2000
+                    });
+                }
+            });
+            return false; //阻止表单跳转。
+        });
+        var dropzone = new Dropzone('#uploadDrop', {
+            url: '/upload/image/book/${book.id!0}',
+            acceptedFiles: 'image/*',
+            paramName : 'editormd-image-file'
+
+        });
+        dropzone.on('success', function (file, res) {
+            $('input[name=\'cover\']').val(res.url);
+            $('#bookCover').attr('src', res.url);
+        });
+        dropzone.on('addedfile', function (file, msg) {
+            console.log(msg)
+        });
+        dropzone.on('sending', function (file, sec, thr) {
+            console.log(sec);
+            console.log(thr);
+        });
+    });
+</script>
+</body>
+</html>

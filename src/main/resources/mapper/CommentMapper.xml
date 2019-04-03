@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yasukusury.onlinedocument.biz.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.yasukusury.onlinedocument.biz.entity.Comment">
+    <result column="id" property="id" />
+    <result column="create_time" property="createTime" />
+    <result column="update_time" property="updateTime" />
+    <result column="delete_time" property="deleteTime" />
+    <result column="valid" property="valid" />
+        <result column="chapter" property="chapter" />
+        <result column="user" property="user" />
+        <result column="content" property="content" />
+        <result column="praise" property="praise" />
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="org.yasukusury.onlinedocument.biz.dto.CommentDto">
+        <result column="id" property="id" />
+        <result column="username" property="user" />
+        <result column="create_time" property="createDate" />
+        <result column="content" property="content" />
+        <result column="praise" property="praise" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        delete_time,
+        valid,
+        chapter, `user`, content, praise
+    </sql>
+
+    <select id="listDtoByChapter" resultMap="DtoResultMap">
+        select c.id, u.username, c.create_time, c.content, c.praise
+        from comment c join `user` u on u.id = c.`user`
+        where c.chapter = #{chapter} and c.valid = 1
+        order by c.id
+    </select>
+
+</mapper>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Realm - 登录</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="container">
+            <div class="h-mid" >
+                <b class="btn" style="font-size: 50px; color: blue">Realm</b>
+            </div>
+            <form class="layui-form" action="/login" method="post" id="logForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" required lay-verify="required" placeholder="请输入用户名"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="password" required lay-verify="required" placeholder="请输入密码"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="display: none">辅助文字</div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="h-mid">
+                        <button class="layui-btn" lay-submit >登录</button>
+                        <button type="button" class="layui-btn layui-btn-primary btn-fr">去注册</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layui/layui.all.js"></script>
+<script type="text/javascript">
+    var layer;
+    layui.use(['form', 'layer'], function () {
+        layer = layui.layer;
+        var form = layui.form;
+        form.on('submit()', function(data){
+            var form = $("#logForm");
+            var formData = form.serialize();
+            $.post(form.attr("action"), formData, function(data){
+                if(data.success){
+                    layer.msg(data.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    },function () {
+                        parent.layer.closeAll();
+                        parent.window.location.reload();
+                    });
+                }else{
+                    layer.msg(data.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        time : 2000
+                    });
+                }
+            });
+            return false; //阻止表单跳转。
+        });
+        $('input[name=\'username\']').focus();
+    });
+    $(document).on("click", ".btn-fr", function (e) {
+        parent.layer.closeAll();
+        parent.layer.open({
+            title: '注册',
+            type: 2,
+            area: ['500px', '450px'],
+            content: '/register'
+        });
+    });
+</script>
+</body>
+</html>

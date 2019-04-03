@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+    <title>我的主页 - Realm</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link href="/static/cropper/cropper.css" rel="stylesheet">
+    <link href="/static/dropzone/dropzone.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/myCss.css">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        #porUpl * {
+            display : none;
+        }
+
+        .preview {
+            overflow : hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="${user.portrait!'/static/image/emp-portrait.jpg'}"
+                 alt="Picture" id="image" style="max-height: 300px;max-width: 300px">
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-4">
+            <div class="preview" style="width: 200px; height: 200px; overflow: hidden">
+            </div>
+            <!--            <img id="hiddenUpl" class="dropzone-box" src="/static/image/add.png">-->
+            <button class="layui-btn layui-bg-blue" id="porUpl" style="margin-top: 50px;margin-left: 24px">上传</button>
+            <button class="layui-btn" id="porSave" style="margin-top: 50px;margin-left: 24px">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/static/bootstrap/js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/cropper/cropper.js"></script>
+<script src="/static/dropzone/dropzone.js"></script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/myJs.js"></script>
+<script>
+    var layer;
+    var loadId;
+    layui.use('layer', function () {
+        layer = layui.layer;
+    });
+
+    var cropper;
+    var dropzone;
+    var image = $('#image');
+    var previews = $('.preview');
+    var format;
+
+    function upload(src) {
+        loadId = layer.load();
+        if (src) {
+            image.attr('src', src);
+        }
+        if (cropper) {
+            cropper.destroy();
+        }
+        cropper = new Cropper(image[0], {
+            initialAspectRatio: 1,
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            preview: '.preview',
+            minContainerHeight: 300,
+            minContainerWidth: 300,
+            ready: function () {
+                $('#porSave').unbind().on('click', function (e) {
+                    cropper.getCroppedCanvas().toBlob(function (blob) {
+                        var formData = new FormData();
+                        formData.append('editormd-image-file', blob, 'file.'+ format);
+                        $.ajax('/upload/image/portrait/${user.id}', {
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            // mimeType: 'multipart/form-data',
+                            success: function (data) {
+                                if (data.success) {
+                                    layer.msg(data.msg, {
+                                        icon: 1,
+                                        skin: 'layer-ext-moon',
+                                        time: 2000
+                                    }, function () {
+                                        parent.layer.closeAll();
+                                        parent.window.location.reload();
+                                    });
+                                } else {
+                                    layer.msg(data.msg, {
+                                        icon: 2,
+                                        skin: 'layer-ext-moon',
+                                        time: 2000
+                                    });
+                                }
+                            }
+                        })
+                    });
+                });
+                layer.close(loadId);
+            }
+
+            ,
+        })
+        ;
+    }
+
+    $(document).ready(function () {
+
+        upload();
+        $('#porUpl').on('click', function (e) {
+            $('#hiddenUpl').click();
+        });
+        dropzone = new Dropzone('#porUpl', {
+            url: '/',
+            acceptedFiles: 'image/*',
+            paramName: 'editormd-image-file',
+            autoProcessQueue: false
+        });
+        dropzone.on('addedfile', function () {
+            var images = $('.dz-image img');
+        });
+        dropzone.on('thumbnail', function () {
+            var images = $('.dz-image img');
+            format = images[images.length - 1].alt.split('.')[1];
+            upload(images[images.length - 1].src);
+        });
+    })
+</script>
+</body>
+</html>
